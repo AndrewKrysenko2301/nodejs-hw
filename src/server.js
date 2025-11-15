@@ -6,6 +6,7 @@ import { logger } from './middleware/logger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import notesRouter from './routes/notesRoutes.js';
+import { errors } from 'celebrate';
 
 dotenv.config();
 const app = express();
@@ -15,6 +16,7 @@ app.use(logger);
 app.use(cors());
 app.use(express.json());
 app.use('/notes', notesRouter);
+app.use(errors());
 app.use(notFoundHandler);
 app.use(errorHandler);
 

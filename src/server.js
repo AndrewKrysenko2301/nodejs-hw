@@ -15,9 +15,9 @@ const PORT = process.env.PORT || 3000;
 app.use(logger);
 app.use(cors());
 app.use(express.json());
-app.use('/notes', notesRouter);
-app.use(errors());
+app.use(notesRouter);
 app.use(notFoundHandler);
+app.use(errors());
 app.use(errorHandler);
 
 await connectMongoDB();

@@ -7,6 +7,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import notesRouter from './routes/notesRoutes.js';
 import { errors } from 'celebrate';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 const app = express();
@@ -14,6 +15,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(logger);
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 app.use(notesRouter);
 app.use(errors());

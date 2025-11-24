@@ -21,10 +21,10 @@ const router = Router();
 
 router.use(authenticate);
 
-router.get('/', celebrate(getAllNotesSchema), getAllNotes);
-router.get('/:noteId', celebrate(noteIdSchema), getNoteById);
-router.post('/', celebrate(createNoteSchema), createNote);
-router.delete('/:noteId', celebrate(noteIdSchema), deleteNote);
-router.patch('/:noteId', celebrate(updateNoteSchema), updateNote);
+router.get('/notes', celebrate(getAllNotesSchema), getAllNotes);
+router.get('/notes/:noteId', celebrate(noteIdSchema), getNoteById);
+router.post('/notes', celebrate(createNoteSchema), createNote);
+router.delete('/notes/:noteId', celebrate(noteIdSchema), deleteNote);
+router.patch('/notes/:noteId', celebrate(updateNoteSchema), updateNote);
 
 export default router;

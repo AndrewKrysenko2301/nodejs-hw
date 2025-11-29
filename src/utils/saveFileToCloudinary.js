@@ -9,10 +9,13 @@ cloudinary.config({
 
 export const saveFileToCloudinary = (buffer) => {
   return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream((error, result) => {
-      if (error) reject(error);
-      else resolve(result);
-    });
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder: 'avatars' }, // можно указывать папку в облаке
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
 
     streamifier.createReadStream(buffer).pipe(uploadStream);
   });

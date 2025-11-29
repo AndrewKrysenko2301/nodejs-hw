@@ -8,13 +8,27 @@ export const updateUserAvatar = async (req, res, next) => {
   }
 
   try {
-    const result = await saveFileToCloudinary(req.file.buffer);
+    const userId = req.user?._id;
+
+    if (!userId) {
+      return next(createHttpError(401, 'Unauthorized'));
+    }
+
+    const uploadResult = await saveFileToCloudinary(req.file.buffer);
+
+    if (!uploadResult.secure_url) {
+      return next(createHttpError(500, 'Failed to upload avatar'));
+    }
 
     const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { avatar: result.secure_url },
+      userId,
+      { avatar: uploadResult.secure_url },
       { new: true }
     );
+
+    if (!user) {
+      return next(createHttpError(404, 'User not found'));
+    }
 
     res.status(200).json({ url: user.avatar });
   } catch (error) {

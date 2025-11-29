@@ -1,13 +1,15 @@
 import createHttpError from 'http-errors';
 import bcrypt from 'bcrypt';
-import { User } from '../models/user.js';
-import { sendEmail } from '../utils/sendMail.js';
-import { Session } from '../models/session.js';
-import { createSession, setSessionCookies } from '../services/auth.js';
-import path from 'path';
 import jwt from 'jsonwebtoken';
+import path from 'path';
 import fs from 'fs';
-import handlebars from 'handlebars'; // ✅ импортируем
+import handlebars from 'handlebars';
+
+import { User } from '../models/user.js';
+import { Session } from '../models/session.js';
+import { sendEmail } from '../utils/sendMail.js';
+import { createSession, setSessionCookies } from '../services/auth.js';
+
 
 export const registerUser = async (req, res, next) => {
   try {
@@ -39,14 +41,10 @@ export const loginUser = async (req, res, next) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user) {
-      throw createHttpError(401, 'Invalid credentials');
-    }
+    if (!user) throw createHttpError(401, 'Invalid credentials');
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      throw createHttpError(401, 'Invalid credentials');
-    }
+    if (!isPasswordValid) throw createHttpError(401, 'Invalid credentials');
 
     await Session.deleteMany({ userId: user._id });
 
@@ -134,7 +132,6 @@ export const requestResetEmail = async (req, res, next) => {
     const template = handlebars.compile(source);
 
     const resetLink = `${process.env.FRONTEND_DOMAIN}/reset-password?token=${token}`;
-
     const html = template({ name: user.name || user.email, resetLink });
 
     await sendEmail({
@@ -146,7 +143,7 @@ export const requestResetEmail = async (req, res, next) => {
     return res.status(200).json(successResponse);
   } catch (error) {
     console.error(error);
-    return next(createHttpError(500, 'Failed to send the email, please try again later.'));
+    return next(createHttpError(500, 'Failed to send email, please try again later.'));
   }
 };
 
@@ -157,7 +154,7 @@ export const resetPassword = async (req, res, next) => {
     let payload;
     try {
       payload = jwt.verify(token, process.env.JWT_SECRET);
-    } catch  {
+    } catch {
       return next(createHttpError(401, 'Invalid or expired token'));
     }
 

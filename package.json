@@ -32,9 +32,12 @@
     "express": "^5.1.0",
     "handlebars": "^4.7.8",
     "http-errors": "^2.0.0",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.3",
     "multer": "^2.0.2",
-    "pino-http": "^11.0.0"
+    "nodemailer": "^7.0.11",
+    "pino-http": "^11.0.0",
+    "streamifier": "^0.1.1"
   },
   "repository": {
     "type": "git",

@@ -1,19 +1,20 @@
 import { Router } from 'express';
 import { celebrate } from 'celebrate';
+
 import {
   registerUserSchema,
   loginUserSchema,
+  requestResetEmailSchema,
 } from '../validations/authValidation.js';
+
 import {
   registerUser,
   loginUser,
   refreshUserSession,
   logoutUser,
+  requestResetEmail,
+  resetPassword,
 } from '../controllers/authController.js';
-import { requestResetEmail } from '../controllers/authController.js';
-import { requestResetEmailSchema } from '../validations/authValidation.js';
-import validateRequest from '../middlewares/validateRequest.js';
-import { resetPassword } from '../controllers/authController.js';
 
 const router = Router();
 
@@ -27,13 +28,10 @@ router.post('/auth/logout', logoutUser);
 
 router.post(
   '/auth/request-reset-email',
-  validateRequest(requestResetEmailSchema),
+  celebrate(requestResetEmailSchema),
   requestResetEmail
 );
 
-router.post(
-  '/reset-password',
-  resetPassword
-);
+router.post('/auth/reset-password', resetPassword);
 
 export default router;

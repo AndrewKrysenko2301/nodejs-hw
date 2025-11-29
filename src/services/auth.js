@@ -1,33 +1,41 @@
-import createHttpError from 'http-errors';
+import crypto from 'crypto';
 import { Session } from '../models/session.js';
-import { User } from '../models/user.js';
+import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/time.js';
 
-export const authenticate = async (req, res, next) => {
-  try {
-    const { accessToken } = req.cookies;
+export const createSession = async (userId) => {
+  const accessToken = crypto.randomUUID();
+  const refreshToken = crypto.randomUUID();
 
-    if (!accessToken) {
-      throw createHttpError(401, 'Missing access token');
-    }
+  const accessTokenValidUntil = new Date(Date.now() + FIFTEEN_MINUTES);
+  const refreshTokenValidUntil = new Date(Date.now() + ONE_DAY);
 
-    const session = await Session.findOne({ accessToken });
-    if (!session) {
-      throw createHttpError(401, 'Session not found');
-    }
+  const session = await Session.create({
+    userId,
+    accessToken,
+    refreshToken,
+    accessTokenValidUntil,
+    refreshTokenValidUntil,
+  });
 
-    if (session.accessTokenValidUntil < new Date()) {
-      throw createHttpError(401, 'Access token expired');
-    }
+  return session;
+};
 
-    const user = await User.findById(session.userId);
-    if (!user) {
-      throw createHttpError(401);
-    }
+export const setSessionCookies = (res, session) => {
+  const cookieOptionsAccess = {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    maxAge: FIFTEEN_MINUTES,
+  };
 
-    req.user = user;
+  const cookieOptionsLong = {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    maxAge: ONE_DAY,
+  };
 
-    next();
-  } catch (error) {
-    next(error);
-  }
+  res.cookie('accessToken', session.accessToken, cookieOptionsAccess);
+  res.cookie('refreshToken', session.refreshToken, cookieOptionsLong);
+  res.cookie('sessionId', session._id.toString(), cookieOptionsLong);
 };

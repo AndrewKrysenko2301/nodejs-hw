@@ -18,6 +18,11 @@ const userSchema = new Schema(
       required: true,
       minlength: 8,
     },
+    avatar: {
+      type: String,
+      required: false,
+      default: "https://ac.goit.global/fullstack/react/default-avatar.jpg",
+    },
   },
   { timestamps: true, versionKey: false },
 );
@@ -41,6 +46,13 @@ userSchema.pre('save', async function (next) {
   } catch (err) {
     next(err);
   }
+});
+
+userSchema.pre('save', function (next) {
+  if (!this.username) {
+    this.username = this.email; // если username пустой, ставим email
+  }
+  next();
 });
 
 userSchema.methods.toJSON = function () {

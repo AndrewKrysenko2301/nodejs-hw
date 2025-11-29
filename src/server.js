@@ -16,14 +16,21 @@ const app = express();
 const PORT = process.env.PORT || 3030;
 
 app.use(logger);
-app.use(cors());
+
+app.use(cors({
+  origin: process.env.FRONTEND_DOMAIN,
+  credentials: true,
+}));
+
 app.use(cookieParser());
 app.use(express.json());
+
 app.use('/users', userRoutes);
-app.use(authRouter);
-app.use(notesRouter);
-app.use(userRoutes);
+app.use('/auth', authRouter);
+app.use('/notes', notesRouter);
+
 app.use(errors());
+
 app.use(notFoundHandler);
 app.use(errorHandler);
 

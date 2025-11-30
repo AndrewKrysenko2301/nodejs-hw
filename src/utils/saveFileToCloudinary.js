@@ -9,8 +9,15 @@ cloudinary.config({
 
 export const saveFileToCloudinary = (buffer) => {
   return new Promise((resolve, reject) => {
+    const uploadOptions = {
+      folder: 'avatars',
+      resource_type: 'image',
+      overwrite: true,
+      unique_filename: true,
+    };
+
     const uploadStream = cloudinary.uploader.upload_stream(
-      { folder: 'avatars' }, // можно указывать папку в облаке
+      uploadOptions,
       (error, result) => {
         if (error) return reject(error);
         resolve(result);

@@ -5,37 +5,37 @@ import { connectMongoDB } from './db/connectMongoDB.js';
 import { logger } from './middleware/logger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
+
 import notesRouter from './routes/notesRoutes.js';
 import authRouter from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+
 import { errors } from 'celebrate';
 import cookieParser from 'cookie-parser';
 
 dotenv.config();
+
 const app = express();
 const PORT = process.env.PORT || 3030;
 
 app.use(logger);
 
-app.use(cors({
-  origin: process.env.FRONTEND_DOMAIN,
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_DOMAIN,
+    credentials: true,
+  })
+);
 
 app.use(cookieParser());
 app.use(express.json());
-
-app.use('/users', userRoutes);
-app.use('/auth', authRouter);
-app.use('/notes', notesRouter);
-
+app.use(userRoutes);
+app.use(authRouter);
+app.use(notesRouter);
 app.use(errors());
-
 app.use(notFoundHandler);
 app.use(errorHandler);
-
 await connectMongoDB();
-
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

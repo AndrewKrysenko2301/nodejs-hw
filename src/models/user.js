@@ -20,7 +20,6 @@ const userSchema = new Schema(
     },
     avatar: {
       type: String,
-      required: false,
       default: "https://ac.goit.global/fullstack/react/default-avatar.jpg",
     },
   },
@@ -35,24 +34,14 @@ userSchema.pre('save', function (next) {
 });
 
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    return next();
-  }
+  if (!this.isModified('password')) return next();
 
   try {
-    const hashedPassword = await bcrypt.hash(this.password, 10);
-    this.password = hashedPassword;
+    this.password = await bcrypt.hash(this.password, 10);
     next();
   } catch (err) {
     next(err);
   }
-});
-
-userSchema.pre('save', function (next) {
-  if (!this.username) {
-    this.username = this.email; // если username пустой, ставим email
-  }
-  next();
 });
 
 userSchema.methods.toJSON = function () {

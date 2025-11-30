@@ -1,15 +1,9 @@
-import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import nodemailer from 'nodemailer';
 
 dotenv.config();
 
-const requiredEnvVars = [
-  'SMTP_HOST',
-  'SMTP_PORT',
-  'SMTP_USER',
-  'SMTP_PASSWORD',
-  'SMTP_FROM',
-];
+const requiredEnvVars = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASSWORD', 'SMTP_FROM'];
 
 requiredEnvVars.forEach((key) => {
   if (!process.env[key]) {
@@ -29,7 +23,7 @@ const transporter = nodemailer.createTransport({
 
 export const sendMail = async ({ to, subject, html }) => {
   try {
-    await transporter.sendMail({
+    return await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to,
       subject,

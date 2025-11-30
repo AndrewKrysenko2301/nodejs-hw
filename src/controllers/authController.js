@@ -111,14 +111,9 @@ export const requestResetEmail = async (req, res, next) => {
   try {
     const { email } = req.body;
 
-    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-      throw createHttpError(400, 'Invalid email');
-    }
-
     const user = await User.findOne({ email });
 
     const successResponse = { message: 'Password reset email sent successfully' };
-
     if (!user) return res.status(200).json(successResponse);
 
     const token = jwt.sign(
@@ -132,23 +127,18 @@ export const requestResetEmail = async (req, res, next) => {
     const template = handlebars.compile(source);
 
     const resetLink = `${process.env.FRONTEND_DOMAIN}/reset-password?token=${token}`;
-
-    const html = template({
-      name: user.username || user.email,
-      resetLink,
-    });
+    const html = template({ name: user.username || user.email, resetLink });
 
     await sendMail({
-      from: process.env.SMTP_FROM,
+      to: user.email,
       subject: 'Password Reset Request',
       html,
     });
 
     return res.status(200).json(successResponse);
-
   } catch (error) {
     console.error(error);
-    next(createHttpError(500, 'Failed to send email, please try again later.'));
+    return next(createHttpError(500, 'Failed to send email, please try again later.'));
   }
 };
 
@@ -160,23 +150,21 @@ export const resetPassword = async (req, res, next) => {
     try {
       payload = jwt.verify(token, process.env.JWT_SECRET);
     } catch {
-      throw createHttpError(401, 'Invalid or expired token');
+      return next(createHttpError(401, 'Invalid or expired token'));
     }
 
     const { sub: userId, email } = payload;
 
     const user = await User.findOne({ _id: userId, email });
     if (!user) {
-      throw createHttpError(404, 'User not found');
+      return next(createHttpError(404, 'User not found'));
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     user.password = hashedPassword;
     await user.save();
 
-    res.status(200).json({ message: 'Password reset successfully' });
-
+    return res.status(200).json({ message: 'Password reset successfully' });
   } catch (error) {
     next(error);
   }
